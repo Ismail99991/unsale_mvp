@@ -1,7 +1,57 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
+import { signUp, signIn, getCurrentUser } from '../lib/auth'
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [companyName, setCompanyName] = useState('')
+  const [inn, setInn] = useState('')
+  const [managerName, setManagerName] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
+  
+  const router = useRouter()
+
+  // Проверяем авторизацию при загрузке
+  useEffect(() => {
+    checkAuth()
+  }, [])
+
+  async function checkAuth() {
+    const { data: { user } } = await getCurrentUser()
+    if (user) {
+      router.push('/dashboard') // Перенаправляем если уже авторизован
+    }
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setLoading(true)
+    setMessage('')
+
+    try {
+      if (isLogin) {
+        // Вход
+        await signIn(email, password)
+        setMessage('Успешный вход! Перенаправляем...')
+        setTimeout(() => router.push('/dashboard'), 1000)
+      } else {
+        // Регистрация
+        await signUp(email, password, {
+          companyName,
+          inn,
+          managerName
+        })
+        setMessage('Регистрация успешна! Проверьте email для подтверждения.')
+      }
+    } catch (error) {
+      setMessage(`Ошибка: ${error.message}`)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div style={styles.container}>
@@ -24,28 +74,75 @@ export default function Auth() {
           </button>
         </div>
 
-        <form style={styles.form}>
+        <form style={styles.form} onSubmit={handleSubmit}>
+          {!isLogin && (
+            <>
+              <input 
+                type="text" 
+                placeholder="Название компании" 
+                style={styles.input}
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                required
+              />
+              <input 
+                type="text" 
+                placeholder="ИНН" 
+                style={styles.input}
+                value={inn}
+                onChange={(e) => setInn(e.target.value)}
+                required
+              />
+              <input 
+                type="text" 
+                placeholder="ФИО менеджера" 
+                style={styles.input}
+                value={managerName}
+                onChange={(e) => setManagerName(e.target.value)}
+                required
+              />
+            </>
+          )}
+          
           <input 
             type="email" 
             placeholder="Email" 
             style={styles.input}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
           <input 
             type="password" 
             placeholder="Пароль" 
             style={styles.input}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
+            minLength="6"
           />
           
-          <button type="submit" style={styles.button}>
-            {isLogin ? 'Войти' : 'Зарегистрироваться'}
+          <button 
+            type="submit" 
+            style={styles.button}
+            disabled={loading}
+          >
+            {loading ? 'Загрузка...' : (isLogin ? 'Войти' : 'Зарегистрироваться')}
           </button>
         </form>
 
+        {message && (
+          <p style={{
+            ...styles.hint,
+            color: message.includes('Ошибка') ? '#ff4444' : '#8cc552'
+          }}>
+            {message}
+          </p>
+        )}
+
         {!isLogin && (
           <p style={styles.hint}>
-            Регистрация только для проверенных клиентов
+            После регистрации мы свяжемся с вами для подтверждения аккаунта
           </p>
         )}
       </div>
@@ -53,6 +150,7 @@ export default function Auth() {
   )
 }
 
+// Стили остаются прежними...
 const styles = {
   container: {
     minHeight: '100vh',
@@ -123,7 +221,8 @@ const styles = {
     fontSize: 16,
     fontWeight: 600,
     cursor: 'pointer',
-    transition: 'background-color 0.2s'
+    transition: 'background-color 0.2s',
+    opacity: 1
   },
   hint: {
     textAlign: 'center',
