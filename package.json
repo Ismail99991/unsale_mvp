@@ -1,4 +1,19 @@
 {
-  "name": "unsales-platform",
-  "private": true
+  "name": "unsale-mvp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Unsale.ru - B2B платформа для текстильной промышленности",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:admin": "npm run dev --workspace=apps/admin",
+    "build:web": "npm run build --workspace=apps/web",
+    "build:admin": "npm run build --workspace=apps/admin"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
 }
