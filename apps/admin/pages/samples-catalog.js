@@ -329,7 +329,7 @@ const styles = {
   productDetails: {
     marginBottom: '12px'
   },
-  productDetails p: {
+  productDetailsText: {
     margin: '4px 0',
     fontSize: '14px',
     color: '#333'
