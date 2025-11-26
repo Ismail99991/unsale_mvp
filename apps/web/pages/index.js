@@ -4,62 +4,96 @@ import { useState } from 'react'
 export default function Home() {
   const [activeTab, setActiveTab] = useState('home')
 
-  // Моковые данные товаров для демонстрации
-  const featuredProducts = [
-    { id: 1, name: 'Футер 2-х нитка', price: '$3.20', composition: '100% хлопок' },
-    { id: 2, name: 'Кулирка гладь', price: '$2.80', composition: '100% хлопок' },
-    { id: 3, name: 'Меланж серый', price: '$3.75', composition: '90% хлопок, 10% полиэстер' },
-    { id: 4, name: 'Рибана 1x1', price: '$3.10', composition: '95% хлопок, 5% эластан' }
+  // Баннеры/акции
+  const banners = [
+    { id: 1, title: 'Новая коллекция', subtitle: 'Осень-Зима 2024', color: '#115c5c' },
+    { id: 2, title: 'Скидка 10%', subtitle: 'Первый заказ', color: '#8cc552' }
   ]
 
+  // Быстрые категории
+  const categories = [
+    { id: 1, name: 'Футер', icon: '🧵', color: '#e3f2fd' },
+    { id: 2, name: 'Кулирка', icon: '👕', color: '#f3e5f5' },
+    { id: 3, name: 'Меланж', icon: '🎨', color: '#e8f5e8' },
+    { id: 4, name: 'Рибана', icon: '🌀', color: '#fff3e0' }
+  ]
+
+  // Популярные товары
+  const featuredProducts = [
+    { id: 1, name: 'Футер 2-х нитка', price: '$3.20', color: '#4CAF50' },
+    { id: 2, name: 'Кулирка гладь', price: '$2.80', color: '#2196F3' },
+    { id: 3, name: 'Меланж серый', price: '$3.75', color: '#9E9E9E' },
+    { id: 4, name: 'Рибана 1x1', price: '$3.10', color: '#FF9800' }
+  ]
+
+  // Компактные преимущества
   const advantages = [
-    { 
-      title: 'Прямые цены от производителя', 
-      description: 'Работаем без посредников' 
-    },
-    { 
-      title: 'Онлайн заказ 24/7', 
-      description: 'Заказывайте в любое время' 
-    },
-    { 
-      title: 'Персональные условия', 
-      description: 'Скидки для постоянных клиентов' 
-    },
-    { 
-      title: 'Собственная логистика', 
-      description: 'Быстрая доставка по всей России' 
-    }
+    { icon: '🏭', text: 'Прямой производитель' },
+    { icon: '🚚', text: 'Быстрая доставка' },
+    { icon: '💳', text: 'Персональные цены' },
+    { icon: '🛡️', text: 'Гарантия качества' }
   ]
 
   return (
     <div style={styles.container}>
       {/* Шапка */}
       <header style={styles.header}>
-        <h1 style={styles.logo}>Unsale.ru</h1>
-        <Link href="/auth" style={styles.loginButton}>
-          Войти
-        </Link>
+        <h1 style={styles.logo}>Unsale</h1>
+        <div style={styles.headerActions}>
+          <button style={styles.iconButton}>🔔</button>
+          <Link href="/auth" style={styles.loginButton}>
+            Войти
+          </Link>
+        </div>
       </header>
+
+      {/* Поисковая строка */}
+      <div style={styles.searchBar}>
+        <div style={styles.searchInput}>
+          🔍 Поиск тканей...
+        </div>
+      </div>
 
       {/* Основной контент */}
       <main style={styles.main}>
         {activeTab === 'home' && (
           <>
-            {/* Герой-секция */}
-            <section style={styles.hero}>
-              <h2 style={styles.heroTitle}>Трикотажное полотно оптом</h2>
-              <p style={styles.heroSubtitle}>Прямые поставки с фабрики для вашего бизнеса</p>
+            {/* Баннеры */}
+            <section style={styles.bannersSection}>
+              <div style={styles.bannersContainer}>
+                {banners.map(banner => (
+                  <div key={banner.id} style={{...styles.banner, backgroundColor: banner.color}}>
+                    <div style={styles.bannerContent}>
+                      <h3 style={styles.bannerTitle}>{banner.title}</h3>
+                      <p style={styles.bannerSubtitle}>{banner.subtitle}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </section>
 
-            {/* Преимущества */}
+            {/* Быстрые категории */}
             <section style={styles.section}>
-              <h3 style={styles.sectionTitle}>Почему выбирают нас</h3>
+              <h2 style={styles.sectionTitle}>Категории</h2>
+              <div style={styles.categoriesGrid}>
+                {categories.map(category => (
+                  <div key={category.id} style={styles.categoryCard}>
+                    <div style={{...styles.categoryIcon, backgroundColor: category.color}}>
+                      {category.icon}
+                    </div>
+                    <span style={styles.categoryName}>{category.name}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Компактные преимущества */}
+            <section style={styles.section}>
               <div style={styles.advantagesGrid}>
                 {advantages.map((advantage, index) => (
-                  <div key={index} style={styles.advantageCard}>
-                    <div style={styles.advantageIcon}>✓</div>
-                    <h4 style={styles.advantageTitle}>{advantage.title}</h4>
-                    <p style={styles.advantageDesc}>{advantage.description}</p>
+                  <div key={index} style={styles.advantageItem}>
+                    <div style={styles.advantageIcon}>{advantage.icon}</div>
+                    <span style={styles.advantageText}>{advantage.text}</span>
                   </div>
                 ))}
               </div>
@@ -67,14 +101,18 @@ export default function Home() {
 
             {/* Популярные товары */}
             <section style={styles.section}>
-              <h3 style={styles.sectionTitle}>Популярные ткани</h3>
+              <div style={styles.sectionHeader}>
+                <h2 style={styles.sectionTitle}>Популярные ткани</h2>
+                <button style={styles.seeAllButton}>Все</button>
+              </div>
               <div style={styles.productsGrid}>
                 {featuredProducts.map(product => (
                   <div key={product.id} style={styles.productCard}>
-                    <div style={styles.productImage}></div>
-                    <h4 style={styles.productName}>{product.name}</h4>
-                    <p style={styles.productComposition}>{product.composition}</p>
-                    <p style={styles.productPrice}>{product.price}/метр</p>
+                    <div style={{...styles.productColor, backgroundColor: product.color}}></div>
+                    <div style={styles.productInfo}>
+                      <h4 style={styles.productName}>{product.name}</h4>
+                      <p style={styles.productPrice}>{product.price}/метр</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -82,14 +120,10 @@ export default function Home() {
           </>
         )}
 
+        {/* Остальные вкладки остаются без изменений */}
         {activeTab === 'search' && (
           <div style={styles.tabContent}>
             <h3 style={styles.sectionTitle}>Поиск тканей</h3>
-            <input 
-              type="text" 
-              placeholder="Поиск по артикулу или названию..." 
-              style={styles.searchInput}
-            />
             <p style={styles.comingSoon}>Функция поиска скоро будет доступна</p>
           </div>
         )}
@@ -98,7 +132,7 @@ export default function Home() {
           <div style={styles.tabContent}>
             <h3 style={styles.sectionTitle}>Индивидуальный заказ</h3>
             <p style={styles.comingSoon}>
-              Заказ ткани по вашим образцам и Pantone будет доступен после регистрации
+              Заказ ткани по вашим образцам и Pantone
             </p>
           </div>
         )}
@@ -116,7 +150,7 @@ export default function Home() {
         )}
       </main>
 
-      {/* Нижнее меню в стиле iOS */}
+      {/* Нижнее меню */}
       <nav style={styles.bottomNav}>
         <button 
           style={{...styles.navItem, ...(activeTab === 'home' ? styles.navItemActive : {})}}
@@ -158,116 +192,175 @@ const styles = {
   container: {
     minHeight: '100vh',
     backgroundColor: '#ffffff',
-    paddingBottom: '80px' // Место для нижнего меню
+    paddingBottom: '80px'
   },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '16px 20px',
-    borderBottom: '1px solid #f0f0f0'
+    padding: '12px 16px',
+    backgroundColor: '#115c5c'
   },
   logo: {
-    color: '#115c5c',
+    color: 'white',
     fontSize: '20px',
     fontWeight: '700',
     margin: 0
+  },
+  headerActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px'
+  },
+  iconButton: {
+    background: 'none',
+    border: 'none',
+    fontSize: '20px',
+    cursor: 'pointer',
+    color: 'white'
   },
   loginButton: {
-    color: '#8cc552',
+    color: 'white',
     textDecoration: 'none',
     fontWeight: '600',
-    fontSize: '16px'
+    fontSize: '14px'
+  },
+  searchBar: {
+    padding: '12px 16px',
+    backgroundColor: 'white',
+    borderBottom: '1px solid #f0f0f0'
+  },
+  searchInput: {
+    padding: '12px 16px',
+    backgroundColor: '#f8f9fa',
+    borderRadius: '8px',
+    color: '#666',
+    fontSize: '14px'
   },
   main: {
-    padding: '20px'
+    padding: '0'
   },
-  hero: {
-    textAlign: 'center',
-    padding: '40px 0',
-    marginBottom: '40px'
+  bannersSection: {
+    padding: '16px'
   },
-  heroTitle: {
-    fontSize: '28px',
+  bannersContainer: {
+    display: 'flex',
+    gap: '12px',
+    overflowX: 'auto'
+  },
+  banner: {
+    minWidth: '280px',
+    height: '120px',
+    borderRadius: '12px',
+    padding: '20px',
+    display: 'flex',
+    alignItems: 'center'
+  },
+  bannerContent: {
+    color: 'white'
+  },
+  bannerTitle: {
+    fontSize: '18px',
     fontWeight: '700',
-    color: '#115c5c',
-    margin: '0 0 12px 0'
+    margin: '0 0 4px 0'
   },
-  heroSubtitle: {
-    fontSize: '16px',
-    color: '#666',
-    margin: 0
+  bannerSubtitle: {
+    fontSize: '14px',
+    margin: 0,
+    opacity: 0.9
   },
   section: {
-    marginBottom: '40px'
+    padding: '16px',
+    borderBottom: '1px solid #f0f0f0'
+  },
+  sectionHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '16px'
   },
   sectionTitle: {
-    fontSize: '20px',
-    fontWeight: '600',
+    fontSize: '18px',
+    fontWeight: '700',
     color: '#115c5c',
-    margin: '0 0 20px 0'
+    margin: 0
   },
-  advantagesGrid: {
+  seeAllButton: {
+    color: '#8cc552',
+    background: 'none',
+    border: 'none',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer'
+  },
+  categoriesGrid: {
     display: 'grid',
-    gap: '16px'
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '12px'
   },
-  advantageCard: {
-    backgroundColor: '#f8f9fa',
-    padding: '20px',
+  categoryCard: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px'
+  },
+  categoryIcon: {
+    width: '48px',
+    height: '48px',
     borderRadius: '12px',
-    border: '1px solid #e9ecef'
-  },
-  advantageIcon: {
-    width: '32px',
-    height: '32px',
-    backgroundColor: '#8cc552',
-    color: 'white',
-    borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: '12px',
+    fontSize: '20px'
+  },
+  categoryName: {
+    fontSize: '12px',
+    color: '#666',
+    textAlign: 'center'
+  },
+  advantagesGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '12px'
+  },
+  advantageItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '12px',
+    backgroundColor: '#f8f9fa',
+    borderRadius: '8px'
+  },
+  advantageIcon: {
     fontSize: '16px'
   },
-  advantageTitle: {
-    fontSize: '16px',
-    fontWeight: '600',
+  advantageText: {
+    fontSize: '12px',
     color: '#115c5c',
-    margin: '0 0 8px 0'
-  },
-  advantageDesc: {
-    fontSize: '14px',
-    color: '#666',
-    margin: 0
+    fontWeight: '500'
   },
   productsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '16px'
+    gap: '12px'
   },
   productCard: {
     border: '1px solid #e9ecef',
     borderRadius: '12px',
-    padding: '16px',
-    textAlign: 'center'
+    overflow: 'hidden'
   },
-  productImage: {
-    width: '100%',
+  productColor: {
     height: '80px',
-    backgroundColor: '#f8f9fa',
-    borderRadius: '8px',
-    marginBottom: '12px'
+    width: '100%'
+  },
+  productInfo: {
+    padding: '12px'
   },
   productName: {
     fontSize: '14px',
     fontWeight: '600',
     color: '#115c5c',
     margin: '0 0 4px 0'
-  },
-  productComposition: {
-    fontSize: '12px',
-    color: '#666',
-    margin: '0 0 8px 0'
   },
   productPrice: {
     fontSize: '14px',
@@ -276,16 +369,8 @@ const styles = {
     margin: 0
   },
   tabContent: {
-    padding: '40px 0',
+    padding: '40px 20px',
     textAlign: 'center'
-  },
-  searchInput: {
-    width: '100%',
-    padding: '12px 16px',
-    border: '1px solid #ddd',
-    borderRadius: '8px',
-    fontSize: '16px',
-    marginBottom: '20px'
   },
   comingSoon: {
     color: '#666',
