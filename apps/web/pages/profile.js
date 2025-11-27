@@ -1,36 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-
-// ВРЕМЕННЫЕ ФУНКЦИИ АУТЕНТИФИКАЦИИ
-async function getCurrentUser() {
-  // Заглушка для разработки
-  return {
-    data: {
-      user: {
-        id: 'demo-user-id',
-        email: 'demo@unsale.ru',
-        isApproved: true,
-        token: 'demo_token',
-        createdAt: new Date().toISOString()
-      }
-    }
-  }
-}
-
-async function signOut() {
-  console.log('User signed out')
-  return Promise.resolve()
-}
+import { getCurrentUser, signOut, getUserProfile } from '../../lib/auth'
 
 export default function Profile() {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [activeTab, setActiveTab] = useState('profile')
-  const [deliveryData, setDeliveryData] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [deliveryAddress, setDeliveryAddress] = useState('')
-  const [deliveryCalculation, setDeliveryCalculation] = useState(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -39,102 +15,47 @@ export default function Profile() {
 
   async function checkAuth() {
     try {
-      const { data: { user } } = await getCurrentUser()
-      if (!user) {
+      const { data: { user }, error } = await getCurrentUser()
+      
+      if (error || !user) {
         router.push('/auth')
-      } else {
-        setUser(user)
-        // Загружаем данные доставки
-        loadDeliveryData()
+        return
       }
+
+      // Получаем профиль из базы
+      try {
+        const userProfile = await getUserProfile(user.id)
+        setProfile(userProfile)
+        setUser({
+          ...user,
+          isApproved: userProfile?.is_approved || false
+        })
+      } catch (profileError) {
+        console.error('Profile fetch error:', profileError)
+        // Если профиль не найден, используем базовые данные
+        setUser({
+          ...user,
+          isApproved: false
+        })
+      }
+      
     } catch (error) {
       console.error('Auth error:', error)
-      // Для демо пропускаем аутентификацию
-      setUser({
-        email: 'demo@unsale.ru',
-        isApproved: true,
-        token: 'demo_token'
-      })
-    }
-  }
-
-  async function loadDeliveryData() {
-    if (!user) return
-    
-    setLoading(true)
-    try {
-      // Заглушка для данных доставки
-      const deliveryData = {
-        deliveries: [
-          {
-            id: 1,
-            orderNumber: 'SMP-001',
-            status: 'delivered',
-            statusText: 'Доставлен',
-            address: 'Москва, ул. Примерная, д. 1',
-            date: '2024-01-15',
-            cost: 450,
-            trackNumber: 'TRK123456789'
-          }
-        ]
-      }
-      setDeliveryData(deliveryData)
-    } catch (error) {
-      console.error('Ошибка загрузки данных доставки:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  async function calculateDelivery() {
-    if (!deliveryAddress.trim()) {
-      alert('Введите адрес для расчета доставки')
-      return
-    }
-
-    setLoading(true)
-    try {
-      // Заглушка для расчета доставки
-      const calculation = {
-        cost: Math.round(300 + Math.random() * 200), // случайная стоимость 300-500 руб
-        days: Math.round(2 + Math.random() * 3), // 2-5 дней
-        type: 'Курьерская доставка',
-        address: deliveryAddress
-      }
-      setDeliveryCalculation(calculation)
-    } catch (error) {
-      console.error('Ошибка расчета доставки:', error)
-      alert('Ошибка при расчете доставки. Попробуйте позже.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  async function createDeliveryRequest() {
-    if (!deliveryCalculation) {
-      alert('Сначала рассчитайте стоимость доставки')
-      return
-    }
-
-    setLoading(true)
-    try {
-      // Заглушка для создания доставки
-      alert('Заявка на доставку создана! Номер: DEL-' + Date.now())
-      setDeliveryCalculation(null)
-      setDeliveryAddress('')
-      loadDeliveryData() // обновляем список доставок
-    } catch (error) {
-      console.error('Ошибка создания доставки:', error)
-      alert('Ошибка при создании доставки')
-    } finally {
-      setLoading(false)
+      router.push('/auth')
     }
   }
 
   async function handleLogout() {
-    await signOut()
-    router.push('/')
+    try {
+      await signOut()
+      router.push('/')
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
   }
+
+  // ... остальной код компонента без изменений ...
+}
 
   if (!user) {
     return (
