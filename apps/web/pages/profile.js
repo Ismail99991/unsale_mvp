@@ -1,6 +1,27 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { getCurrentUser, signOut } from '../../lib/auth'
+import Link from 'next/link'
+
+// ВРЕМЕННЫЕ ФУНКЦИИ АУТЕНТИФИКАЦИИ
+async function getCurrentUser() {
+  // Заглушка для разработки
+  return {
+    data: {
+      user: {
+        id: 'demo-user-id',
+        email: 'demo@unsale.ru',
+        isApproved: true,
+        token: 'demo_token',
+        createdAt: new Date().toISOString()
+      }
+    }
+  }
+}
+
+async function signOut() {
+  console.log('User signed out')
+  return Promise.resolve()
+}
 
 export default function Profile() {
   const [user, setUser] = useState(null)
@@ -16,45 +37,48 @@ export default function Profile() {
     checkAuth()
   }, [])
 
- async function checkAuth() {
-  try {
-    const { data: { user } } = await getCurrentUser()
-    if (!user) {
-      router.push('/auth')
-    } else {
-      // Получаем профиль из базы
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-      
+  async function checkAuth() {
+    try {
+      const { data: { user } } = await getCurrentUser()
+      if (!user) {
+        router.push('/auth')
+      } else {
+        setUser(user)
+        // Загружаем данные доставки
+        loadDeliveryData()
+      }
+    } catch (error) {
+      console.error('Auth error:', error)
+      // Для демо пропускаем аутентификацию
       setUser({
-        ...user,
-        isApproved: profile?.is_approved || false
+        email: 'demo@unsale.ru',
+        isApproved: true,
+        token: 'demo_token'
       })
-      loadDeliveryData()
     }
-  } catch (error) {
-    console.error('Auth error:', error)
-    router.push('/auth')
   }
-}
 
   async function loadDeliveryData() {
     if (!user) return
     
     setLoading(true)
     try {
-      const response = await fetch('/api/delivery/data', {
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
-      })
-      if (response.ok) {
-        const data = await response.json()
-        setDeliveryData(data)
+      // Заглушка для данных доставки
+      const deliveryData = {
+        deliveries: [
+          {
+            id: 1,
+            orderNumber: 'SMP-001',
+            status: 'delivered',
+            statusText: 'Доставлен',
+            address: 'Москва, ул. Примерная, д. 1',
+            date: '2024-01-15',
+            cost: 450,
+            trackNumber: 'TRK123456789'
+          }
+        ]
       }
+      setDeliveryData(deliveryData)
     } catch (error) {
       console.error('Ошибка загрузки данных доставки:', error)
     } finally {
@@ -70,32 +94,17 @@ export default function Profile() {
 
     setLoading(true)
     try {
-      const response = await fetch('/api/delivery/calculate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
-        },
-        body: JSON.stringify({ 
-          address: deliveryAddress,
-          weight: 2, // вес в кг
-          dimensions: { // габариты в см
-            length: 30,
-            width: 20,
-            height: 10
-          }
-        })
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        setDeliveryCalculation(data)
-      } else {
-        throw new Error('Ошибка расчета доставки')
+      // Заглушка для расчета доставки
+      const calculation = {
+        cost: Math.round(300 + Math.random() * 200), // случайная стоимость 300-500 руб
+        days: Math.round(2 + Math.random() * 3), // 2-5 дней
+        type: 'Курьерская доставка',
+        address: deliveryAddress
       }
+      setDeliveryCalculation(calculation)
     } catch (error) {
       console.error('Ошибка расчета доставки:', error)
-      alert('Ошибка при расчете доставки. Попробуйте другой адрес.')
+      alert('Ошибка при расчете доставки. Попробуйте позже.')
     } finally {
       setLoading(false)
     }
@@ -109,28 +118,11 @@ export default function Profile() {
 
     setLoading(true)
     try {
-      const response = await fetch('/api/delivery/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`
-        },
-        body: JSON.stringify({
-          address: deliveryAddress,
-          calculation: deliveryCalculation,
-          products: deliveryData?.products || []
-        })
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        alert('Заявка на доставку создана! Номер: ' + data.deliveryId)
-        setDeliveryCalculation(null)
-        setDeliveryAddress('')
-        loadDeliveryData() // обновляем список доставок
-      } else {
-        throw new Error('Ошибка создания доставки')
-      }
+      // Заглушка для создания доставки
+      alert('Заявка на доставку создана! Номер: DEL-' + Date.now())
+      setDeliveryCalculation(null)
+      setDeliveryAddress('')
+      loadDeliveryData() // обновляем список доставок
     } catch (error) {
       console.error('Ошибка создания доставки:', error)
       alert('Ошибка при создании доставки')
@@ -155,9 +147,7 @@ export default function Profile() {
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <button onClick={() => router.back()} style={styles.backButton}>
-          ← Назад
-        </button>
+        <Link href="/" style={styles.backButton}>← Назад</Link>
         <h1 style={styles.title}>Личный кабинет</h1>
         <button onClick={handleLogout} style={styles.logoutButton}>
           Выйти
@@ -202,7 +192,7 @@ export default function Profile() {
                 </span>
               </div>
               <div style={styles.infoItem}>
-                <strong>Дата регистрации:</strong> {new Date(user.createdAt).toLocaleDateString('ru-RU')}
+                <strong>Дата регистрации:</strong> {new Date().toLocaleDateString('ru-RU')}
               </div>
             </div>
             
@@ -382,17 +372,15 @@ const styles = {
     borderBottom: '1px solid #eee'
   },
   backButton: {
-    background: 'none',
-    border: 'none',
-    fontSize: '16px',
     color: '#115c5c',
-    cursor: 'pointer',
-    fontWeight: '600'
+    textDecoration: 'none',
+    fontWeight: '600',
+    fontSize: '16px'
   },
   title: {
+    color: '#115c5c',
     fontSize: '18px',
     fontWeight: '700',
-    color: '#115c5c',
     margin: 0
   },
   logoutButton: {
@@ -578,14 +566,6 @@ const styles = {
   statusdelivered: {
     backgroundColor: '#d4edda',
     color: '#155724'
-  },
-  statusin_transit: {
-    backgroundColor: '#cce7ff',
-    color: '#004085'
-  },
-  statuspending: {
-    backgroundColor: '#fff3cd',
-    color: '#856404'
   },
   deliveryAddress: {
     margin: '8px 0',
