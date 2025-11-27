@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { getCurrentUser, signOut } from '../lib/auth'
+import { getCurrentUser, signOut } from '../utils/auth'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
