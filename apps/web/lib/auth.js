@@ -61,3 +61,4 @@ export function getCurrentUser() {
 export function onAuthStateChange(callback) {
   return supabase.auth.onAuthStateChange(callback)
 }
+
