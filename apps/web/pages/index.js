@@ -168,13 +168,12 @@ export default function Home() {
           <span style={styles.navLabel}>Поиск</span>
         </button>
         
-       <button 
-  style={{...styles.navItem, ...(activeTab === 'samples' ? styles.navItemActive : {})}}
-  onClick={() => router.push('/samples')}
->
-  <div style={styles.navIcon}>🧪</div>
-  <span style={styles.navLabel}>Образцы</span>
-</button>
+    <Link href="/samples" style={styles.navItemLink}>
+  <div style={styles.navItem}>
+    <div style={styles.navIcon}>🧪</div>
+    <span style={styles.navLabel}>Образцы</span>
+  </div>
+</Link>
         
         <button 
           style={{...styles.navItem, ...(activeTab === 'profile' ? styles.navItemActive : {})}}
