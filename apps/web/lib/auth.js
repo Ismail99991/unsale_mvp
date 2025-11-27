@@ -1,3 +1,4 @@
+// apps/web/lib/auth.js
 import { supabase } from './supabase'
 
 // Регистрация нового пользователя
