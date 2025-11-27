@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
-  },
+  // Убрали env.CUSTOM_KEY так как он не используется
 }
 
 module.exports = nextConfig
