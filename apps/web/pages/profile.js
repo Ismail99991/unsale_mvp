@@ -54,9 +54,6 @@ export default function Profile() {
     }
   }
 
-  // ... остальной код компонента без изменений ...
-}
-
   if (!user) {
     return (
       <div style={styles.loadingContainer}>
