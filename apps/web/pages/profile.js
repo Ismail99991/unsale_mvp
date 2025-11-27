@@ -16,21 +16,30 @@ export default function Profile() {
     checkAuth()
   }, [])
 
-  async function checkAuth() {
-    try {
-      const { data: { user } } = await getCurrentUser()
-      if (!user) {
-        router.push('/auth')
-      } else {
-        setUser(user)
-        // Загружаем данные доставки
-        loadDeliveryData()
-      }
-    } catch (error) {
-      console.error('Auth error:', error)
+ async function checkAuth() {
+  try {
+    const { data: { user } } = await getCurrentUser()
+    if (!user) {
       router.push('/auth')
+    } else {
+      // Получаем профиль из базы
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      
+      setUser({
+        ...user,
+        isApproved: profile?.is_approved || false
+      })
+      loadDeliveryData()
     }
+  } catch (error) {
+    console.error('Auth error:', error)
+    router.push('/auth')
   }
+}
 
   async function loadDeliveryData() {
     if (!user) return
