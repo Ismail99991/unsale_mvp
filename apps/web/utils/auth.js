@@ -51,3 +51,4 @@ export async function getUserProfile(userId) {
   if (error) throw error
   return data
 }
+
