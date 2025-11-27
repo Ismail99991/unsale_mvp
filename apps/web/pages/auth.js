@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { signUp, signIn, getCurrentUser } from '../lib/auth'
+import { signUp, signIn, getCurrentUser } from '../utils/auth'
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true)
