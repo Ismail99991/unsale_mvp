@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { getCurrentUser, signOut, getUserProfile } from '../../utils/auth'
+import { getCurrentUser, signOut, getUserProfile } from '../utils/auth'
 
 export default function Profile() {
   const [user, setUser] = useState(null)
