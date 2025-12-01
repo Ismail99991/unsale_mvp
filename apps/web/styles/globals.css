@@ -1,153 +1,112 @@
-/* ==========================
-   Глобальные стили
-========================== */
-body {
-  font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #FAFAFA;
-  color: #1C1C1E;
-  margin: 0;
-  padding: 0;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iOS 26 UI Demo</title>
+<style>
+/* ===== Глобальные стили ===== */
+* { box-sizing: border-box; margin:0; padding:0; }
+html, body { height: 100%; font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; background:#FAFAFA; color:#1C1C1E; line-height:1.6; -webkit-font-smoothing: antialiased; }
 
-/* Контейнер */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-}
+.container { max-width: 800px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 24px; }
 
 /* Заголовки */
-h1, h2, h3, h4 {
-  color: #1C1C1E;
-  margin: 0 0 12px 0;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-h1 { font-size: 34px; }
-h2 { font-size: 28px; }
-h3 { font-size: 22px; }
-h4 { font-size: 18px; }
+h1 { font-size: 34px; font-weight:600; margin-bottom:12px; }
+h2 { font-size:28px; font-weight:600; margin-bottom:12px; }
 
 /* Кнопки */
 button {
   background-color: #34C759;
-  color: #fff;
-  border: none;
-  border-radius: 16px;
-  padding: 12px 24px;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  color:#fff;
+  border:none;
+  border-radius:16px;
+  padding:12px 24px;
+  cursor:pointer;
+  font-size:15px;
+  font-weight:600;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-}
-
-button:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
+button:hover { transform: translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.12); }
+button:active { transform: translateY(1px); box-shadow:0 2px 6px rgba(0,0,0,0.08); }
 
 /* Поля ввода */
-input, select, textarea {
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #D1D1D6;
-  font-size: 15px;
-  outline: none;
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 16px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-input:focus, select:focus, textarea:focus {
-  border-color: #34C759;
-  box-shadow: 0 0 6px rgba(52, 199, 89, 0.3);
-}
+input { padding:12px; border-radius:12px; border:1px solid #D1D1D6; font-size:15px; width:100%; max-width:400px; margin-bottom:16px; outline:none; transition:border-color 0.2s ease, box-shadow 0.2s ease; }
+input:focus { border-color:#34C759; box-shadow:0 0 6px rgba(52,199,89,0.3); }
 
 /* Карточки */
-.card {
-  background-color: #FFFFFF;
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
+.card { background:#fff; border-radius:20px; padding:20px; box-shadow:0 2px 6px rgba(0,0,0,0.06); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.card:hover { transform: translateY(-3px); box-shadow:0 6px 12px rgba(0,0,0,0.1); }
 
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-}
-
-/* Грид-сетки */
-.grid {
-  display: grid;
-  gap: 16px;
-}
-
-.grid-4 { grid-template-columns: repeat(4, 1fr); }
-.grid-3 { grid-template-columns: repeat(3, 1fr); }
-.grid-2 { grid-template-columns: repeat(2, 1fr); }
+/* Flex helpers */
+.flex { display:flex; }
+.flex-center { display:flex; align-items:center; justify-content:center; }
+.flex-column { display:flex; flex-direction:column; gap:16px; }
+.gap-16 { gap:16px; }
 
 /* Нижняя навигация */
 .bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  background-color: rgba(255,255,255,0.85);
+  position:fixed; bottom:0; left:0; right:0;
+  display:flex; justify-content:space-around;
+  background: rgba(255,255,255,0.85);
   backdrop-filter: blur(14px);
-  border-top: 1px solid #E5E5EA;
-  padding: 6px 0;
+  border-top:1px solid #E5E5EA;
+  padding:8px 0;
+  z-index:1000;
 }
-
-.bottom-nav button {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: none;
-  border: none;
-  font-size: 12px;
-  color: #8E8E93;
-}
-
-.bottom-nav .active {
-  color: #34C759;
-}
-
-/* Утилиты */
-.text-center { text-align: center; }
-.mt-24 { margin-top: 24px; }
-.mb-24 { margin-bottom: 24px; }
+.bottom-nav button { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:none; border:none; font-size:12px; color:#8E8E93; }
+.bottom-nav .active { color:#34C759; }
 
 /* Горизонтальный скролл */
-.scroll-x {
-  display: flex;
-  overflow-x: auto;
-  gap: 14px;
-  padding-bottom: 8px;
-}
+.scroll-x { display:flex; overflow-x:auto; gap:14px; padding-bottom:8px; }
+.scroll-x::-webkit-scrollbar { height:6px; }
+.scroll-x::-webkit-scrollbar-thumb { background: rgba(52,199,89,0.5); border-radius:3px; }
+.scroll-x::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); }
 
-.scroll-x::-webkit-scrollbar {
-  height: 6px;
-}
+/* Утилиты */
+.text-center { text-align:center; }
+.mt-24 { margin-top:24px; }
+.mb-24 { margin-bottom:24px; }
+</style>
+</head>
+<body>
 
-.scroll-x::-webkit-scrollbar-thumb {
-  background: rgba(52,199,89,0.5);
-  border-radius: 3px;
-}
+<div class="container">
 
-.scroll-x::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.03);
-}
+  <h1>Привет, iOS 26 UI!</h1>
+
+  <!-- Кнопки в ряд -->
+  <div class="flex gap-16">
+    <button>Кнопка 1</button>
+    <button>Кнопка 2</button>
+    <button>Кнопка 3</button>
+  </div>
+
+  <!-- Поле ввода -->
+  <input type="text" placeholder="Введите текст...">
+
+  <!-- Горизонтальный скролл -->
+  <div class="scroll-x">
+    <div class="card" style="min-width:200px;">Карточка A</div>
+    <div class="card" style="min-width:200px;">Карточка B</div>
+    <div class="card" style="min-width:200px;">Карточка C</div>
+  </div>
+
+  <!-- Вертикальные карточки -->
+  <div class="flex-column">
+    <div class="card">Вертикальная карточка 1</div>
+    <div class="card">Вертикальная карточка 2</div>
+  </div>
+
+</div>
+
+<!-- Нижняя навигация -->
+<div class="bottom-nav">
+  <button class="active">Главная</button>
+  <button>Поиск</button>
+  <button>Профиль</button>
+</div>
+
+</body>
+</html>
