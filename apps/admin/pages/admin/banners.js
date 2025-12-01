@@ -1,12 +1,11 @@
+// apps/admin/pages/banners.js
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
-
-const ADMIN_SECRET = process.env.NEXT_PUBLIC_ADMIN_SECRET || 'mysecret123'
+import { supabaseAdmin } from '../../lib/supabase'
 
 export default function BannersAdmin() {
   const [banners, setBanners] = useState([])
   const [loading, setLoading] = useState(true)
-  const [newBanner, setNewBanner] = useState({ title: '', subtitle: '', color: '#115c5c' })
+  const [newBanner, setNewBanner] = useState({ title: '', subtitle: '', color: '', image: null })
 
   useEffect(() => {
     fetchBanners()
@@ -14,69 +13,91 @@ export default function BannersAdmin() {
 
   async function fetchBanners() {
     setLoading(true)
-    try {
-      const res = await fetch('/api/content?type=banners')
-      const data = await res.json()
-      setBanners(data)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
+    const { data, error } = await supabaseAdmin.from('banners').select('*').order('ord', { ascending: true })
+    if (error) console.error(error)
+    else setBanners(data)
+    setLoading(false)
+  }
+
+  async function handleAddBanner() {
+    let imageUrl = ''
+    if (newBanner.image) {
+      const fileExt = newBanner.image.name.split('.').pop()
+      const fileName = `${Date.now()}.${fileExt}`
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from('banners')
+        .upload(fileName, newBanner.image)
+      if (uploadError) {
+        console.error(uploadError)
+        return
+      }
+      imageUrl = `${supabaseAdmin.supabaseUrl}/storage/v1/object/public/banners/${fileName}`
+    }
+
+    const { data, error } = await supabaseAdmin.from('banners').insert([{
+      title: newBanner.title,
+      subtitle: newBanner.subtitle,
+      color: newBanner.color,
+      image_url: imageUrl,
+    }]).select().single()
+
+    if (error) console.error(error)
+    else {
+      setBanners([...banners, data])
+      setNewBanner({ title: '', subtitle: '', color: '', image: null })
     }
   }
 
-  async function addBanner() {
-    if (!newBanner.title) return alert('Введите заголовок')
-    await fetch('/api/content?type=banners', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ item: newBanner })
-    })
-    setNewBanner({ title: '', subtitle: '', color: '#115c5c' })
-    fetchBanners()
+  async function handleDeleteBanner(id) {
+    const { error } = await supabaseAdmin.from('banners').delete().eq('id', id)
+    if (error) console.error(error)
+    else setBanners(banners.filter(b => b.id !== id))
   }
 
-  async function deleteBanner(id) {
-    if (!confirm('Удалить баннер?')) return
-    await fetch('/api/content?type=banners', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
-      body: JSON.stringify({ id })
-    })
-    fetchBanners()
-  }
+  if (loading) return <div>Загрузка...</div>
 
   return (
     <div style={{ padding: 20 }}>
-      <Link href="/admin" style={{ marginBottom: 20, display: 'inline-block' }}>← Назад</Link>
-      <h1>Баннеры</h1>
+      <h1>Управление баннерами</h1>
 
-      <div style={{ marginTop: 20 }}>
-        <h3>Добавить баннер</h3>
-        <input placeholder="Заголовок" value={newBanner.title} onChange={e => setNewBanner({ ...newBanner, title: e.target.value })} style={styles.input} />
-        <input placeholder="Подзаголовок" value={newBanner.subtitle} onChange={e => setNewBanner({ ...newBanner, subtitle: e.target.value })} style={styles.input} />
-        <input type="color" value={newBanner.color} onChange={e => setNewBanner({ ...newBanner, color: e.target.value })} style={{ ...styles.input, width: 60 }} />
-        <button onClick={addBanner} style={styles.button}>Добавить</button>
+      {/* Форма добавления */}
+      <div style={{ marginBottom: 20 }}>
+        <input
+          placeholder="Заголовок"
+          value={newBanner.title}
+          onChange={e => setNewBanner({ ...newBanner, title: e.target.value })}
+        />
+        <input
+          placeholder="Подзаголовок"
+          value={newBanner.subtitle}
+          onChange={e => setNewBanner({ ...newBanner, subtitle: e.target.value })}
+        />
+        <input
+          placeholder="Цвет (hex)"
+          value={newBanner.color}
+          onChange={e => setNewBanner({ ...newBanner, color: e.target.value })}
+        />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={e => setNewBanner({ ...newBanner, image: e.target.files[0] })}
+        />
+        <button onClick={handleAddBanner}>Добавить баннер</button>
       </div>
 
-      <div style={{ marginTop: 40 }}>
-        <h3>Существующие баннеры</h3>
-        {loading ? <p>Загрузка...</p> : banners.map(b => (
-          <div key={b.id} style={{ ...styles.card, backgroundColor: b.color }}>
-            <div>
-              <strong>{b.title}</strong> — {b.subtitle}
+      {/* Список баннеров */}
+      <div>
+        {banners.map(b => (
+          <div key={b.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 10, backgroundColor: b.color, padding: 10, borderRadius: 8 }}>
+            {b.image_url && <img src={b.image_url} alt="" style={{ width: 100, height: 60, objectFit: 'cover', marginRight: 10 }} />}
+            <div style={{ flex: 1 }}>
+              <strong>{b.title}</strong>
+              <p>{b.subtitle}</p>
             </div>
-            <button style={styles.deleteButton} onClick={() => deleteBanner(b.id)}>Удалить</button>
+            <button onClick={() => handleDeleteBanner(b.id)}>Удалить</button>
           </div>
         ))}
       </div>
     </div>
   )
-}
-
-const styles = {
-  input: { display: 'block', marginBottom: 10, padding: 8 },
-  button: { padding: '8px 16px', backgroundColor: '#8cc552', color: 'white', border: 'none', cursor: 'pointer' },
-  card: { display: 'flex', justifyContent: 'space-between', padding: 10, borderRadius: 8, marginBottom: 10, color: 'white' },
-  deleteButton: { backgroundColor: 'red', border: 'none', color: 'white', padding: '4px 8px', cursor: 'pointer' }
 }
