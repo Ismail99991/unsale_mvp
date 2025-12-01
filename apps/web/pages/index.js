@@ -141,12 +141,13 @@ export default function Home() {
           <span style={styles.navLabel}>Поиск</span>
         </button>
 
-        <Link href="/samples" style={styles.navItemLink}>
-          <div style={styles.navItem}>
-            <div style={styles.navIcon}>🧪</div>
-            <span style={styles.navLabel}>Образцы</span>
-          </div>
-        </Link>
+         <button
+          style={{ ...styles.navItem, ...(activeTab === 'search' ? styles.navItemActive : {}) }}
+          onClick={() => setActiveTab('samples')}
+        >
+          <div style={styles.navIcon}>🧪</div>
+          <span style={styles.navLabel}>Образцы</span>
+        </button>
 
         <button
           style={{ ...styles.navItem, ...(activeTab === 'profile' ? styles.navItemActive : {}) }}
