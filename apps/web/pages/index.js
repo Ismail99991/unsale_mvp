@@ -1,18 +1,21 @@
+import React from 'react'
 import Link from 'next/link'
 import useSWR from 'swr'
 
+// fetcher для SWR
 const fetcher = (url) => fetch(url).then((res) => res.json())
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('home')
+  const [activeTab, setActiveTab] = React.useState('home')
 
-  // SWR для автообновления контента каждые 5 секунд
-  const { data: content, error } = useSWR('/api/content', fetcher, { refreshInterval: 5000 })
+  const { data: content, error, isLoading } = useSWR('/api/content', fetcher, {
+    refreshInterval: 0
+  })
 
-  if (error) return <div style={{ padding: 20 }}>Ошибка загрузки данных</div>
-  if (!content) return <div style={{ padding: 20 }}>Загрузка...</div>
+  if (isLoading) return <div style={{ padding: 20 }}>Загрузка...</div>
+  if (error) return <div style={{ padding: 20 }}>Ошибка загрузки контента</div>
 
-  const { banners = [], categories = [], featuredProducts = [], advantages = [] } = content
+  const { banners = [], categories = [], featuredProducts = [], advantages = [] } = content || {}
 
   return (
     <div style={styles.container}>
@@ -21,7 +24,9 @@ export default function Home() {
         <h1 style={styles.logo}>Unsale</h1>
         <div style={styles.headerActions}>
           <button style={styles.iconButton}>🔔</button>
-          <Link href="/auth" style={styles.loginButton}>Войти</Link>
+          <Link href="/auth" style={styles.loginButton}>
+            Войти
+          </Link>
         </div>
       </header>
 
@@ -37,7 +42,7 @@ export default function Home() {
             {/* Баннеры */}
             <section style={styles.bannersSection}>
               <div style={styles.bannersContainer}>
-                {banners.map(banner => (
+                {banners.map((banner) => (
                   <div key={banner.id} style={{ ...styles.banner, backgroundColor: banner.color }}>
                     <div style={styles.bannerContent}>
                       <h3 style={styles.bannerTitle}>{banner.title}</h3>
@@ -52,7 +57,7 @@ export default function Home() {
             <section style={styles.section}>
               <h2 style={styles.sectionTitle}>Категории</h2>
               <div style={styles.categoriesGrid}>
-                {categories.map(category => (
+                {categories.map((category) => (
                   <div key={category.id} style={styles.categoryCard}>
                     <div style={{ ...styles.categoryIcon, backgroundColor: category.color }}>{category.icon}</div>
                     <span style={styles.categoryName}>{category.name}</span>
@@ -80,7 +85,7 @@ export default function Home() {
                 <button style={styles.seeAllButton}>Все</button>
               </div>
               <div style={styles.productsGrid}>
-                {featuredProducts.map(product => (
+                {featuredProducts.map((product) => (
                   <div key={product.id} style={styles.productCard}>
                     <div style={{ ...styles.productColor, backgroundColor: product.color }}></div>
                     <div style={styles.productInfo}>
@@ -111,7 +116,9 @@ export default function Home() {
           <div style={styles.tabContent}>
             <h3 style={styles.sectionTitle}>Профиль</h3>
             <p style={styles.comingSoon}>Войдите в систему для доступа к личному кабинету</p>
-            <Link href="/auth" style={styles.authButton}>Войти или зарегистрироваться</Link>
+            <Link href="/auth" style={styles.authButton}>
+              Войти или зарегистрироваться
+            </Link>
           </div>
         )}
       </main>
@@ -153,4 +160,5 @@ export default function Home() {
   )
 }
 
-// --- Здесь можно оставить твои стили из предыдущего index.js ---
+// стили (оставил как в твоем проекте)
+const styles = { /* вставь сюда свои стили из index.js */ }
